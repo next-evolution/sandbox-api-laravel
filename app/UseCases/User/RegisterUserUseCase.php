@@ -20,22 +20,22 @@ class RegisterUserUseCase
 
         $now = Carbon::now();
 
-        $user = new SandboxUser();
-        $user->user_id       = $userId;
+        $user = new SandboxUser;
+        $user->user_id = $userId;
         $user->email_address = $email;
-        $user->nick_name     = $nickName;
-        $user->approved      = false;
-        $user->approved_at   = null;
-        $user->admin         = false;
-        $user->blocked       = false;
-        $user->deleted       = false;
-        $user->created_at    = $now;
-        $user->created_by    = $userId;
-        $user->updated_at    = $now;
-        $user->updated_by    = $userId;
+        $user->nick_name = $nickName;
+        $user->approved = false;
+        $user->approved_at = null;
+        $user->admin = false;
+        $user->blocked = false;
+        $user->deleted = false;
+        $user->created_at = $now;
+        $user->created_by = $userId;
+        $user->updated_at = $now;
+        $user->updated_by = $userId;
 
         DB::transaction(function () use ($user): void {
-            if (!$user->save()) {
+            if (! $user->save()) {
                 throw new InsertException('ユーザ新規登録');
             }
         });

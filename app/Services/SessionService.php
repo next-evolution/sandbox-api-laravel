@@ -53,6 +53,6 @@ class SessionService
 
     private function toKey(string $sub): string
     {
-        return self::KEY_PREFIX . $sub;
+        return self::KEY_PREFIX.$sub;
     }
 }

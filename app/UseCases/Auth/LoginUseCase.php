@@ -30,11 +30,11 @@ class LoginUseCase
         $user?->checkBlocked();
 
         $authUserWithFlags = new AuthUser(
-            sub:           $authUser->sub,
-            email:         $authUser->email,
+            sub: $authUser->sub,
+            email: $authUser->email,
             emailVerified: $authUser->emailVerified,
-            admin:         $user?->admin ?? false,
-            approved:      $user?->approved ?? false,
+            admin: $user?->admin ?? false,
+            approved: $user?->approved ?? false,
         );
         $this->sessionService->save($authUserWithFlags);
 

@@ -15,13 +15,13 @@ class SandboxUser extends Model
     public $timestamps = false;
 
     protected $casts = [
-        'approved'    => 'boolean',
-        'admin'       => 'boolean',
-        'blocked'     => 'boolean',
-        'deleted'     => 'boolean',
+        'approved' => 'boolean',
+        'admin' => 'boolean',
+        'blocked' => 'boolean',
+        'deleted' => 'boolean',
         'approved_at' => 'datetime',
-        'created_at'  => 'datetime',
-        'updated_at'  => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // -------- ドメインメソッド --------
@@ -67,16 +67,16 @@ class SandboxUser extends Model
     public function toDtoArray(): array
     {
         return [
-            'id'           => $this->id,
-            'userId'       => $this->user_id,
+            'id' => $this->id,
+            'userId' => $this->user_id,
             'emailAddress' => $this->email_address,
-            'nickName'     => $this->nick_name,
-            'approved'     => $this->approved,
-            'approvedAt'   => $this->approved_at?->toIso8601String(),
-            'admin'        => $this->admin,
-            'blocked'      => $this->blocked,
-            'createdAt'    => $this->created_at?->toIso8601String(),
-            'updatedAt'    => $this->updated_at?->toIso8601String(),
+            'nickName' => $this->nick_name,
+            'approved' => $this->approved,
+            'approvedAt' => $this->approved_at?->toIso8601String(),
+            'admin' => $this->admin,
+            'blocked' => $this->blocked,
+            'createdAt' => $this->created_at?->toIso8601String(),
+            'updatedAt' => $this->updated_at?->toIso8601String(),
         ];
     }
 }

@@ -16,11 +16,12 @@ PHP 8.3 / Laravel 11 シングルアプリ構成。Laravel の流儀（Active Re
 | `app/Exceptions/` | アプリ例外 7 種（`RuntimeException` のサブクラス） |
 | `app/Models/AuthUser.php` | JWT セッション用オブジェクト（DB 非依存）。JWT クレームと admin・approved フラグを保持 |
 | `app/Models/SandboxUser.php` | Eloquent モデル（`sandbox_user` テーブル）。ドメインロジックを直接持つ |
+| `app/Models/Fx*.php` | FX 系 Eloquent モデル（`FxSymbol`, `FxCountry`, `FxSummerTime`, `FxEconomicIndicator`）。各テーブルに 1 対 1 対応 |
 | `app/Services/JwtService.php` | Cognito RS256 JWKS 検証 |
 | `app/Services/SessionService.php` | Redis セッション管理（`AuthUser` の保存・取得・削除） |
-| `app/UseCases/` | ビジネスロジック。各クラスは `execute()` メソッドを持つ |
-| `app/Http/Controllers/` | REST コントローラー。リクエスト取得・バリデーション・UseCase 呼び出し・レスポンス生成のみ |
-| `app/Http/Middleware/` | `JwtAuthMiddleware`、`AdminMiddleware` |
+| `app/UseCases/` | ビジネスロジック。各クラスは `execute()` メソッドを持つ。ドメイン別サブディレクトリ（`Auth/`, `User/`, `Fx/Symbol/` など）で整理 |
+| `app/Http/Controllers/` | REST コントローラー。リクエスト取得・バリデーション・UseCase 呼び出し・レスポンス生成のみ。ドメイン別サブディレクトリ（`Fx/` など）で整理 |
+| `app/Http/Middleware/` | `JwtAuthMiddleware`、`AdminMiddleware`、`JsonUnescapedUnicodeMiddleware`（全APIレスポンスに `JSON_UNESCAPED_UNICODE` を適用、`api` グループに一括登録） |
 | `bootstrap/app.php` | ルーティング・ミドルウェアエイリアス・例外ハンドラ登録 |
 
 ### データフロー
@@ -103,7 +104,7 @@ Http/Middleware  ──→ Services ──→ Models (Eloquent)
 | `AuthenticationException` | 401 | `{"status": 401, "statusText": "UNAUTHORIZED", "message": "..."}` |
 | `ForbiddenException` | 403 | `{"status": 403, "statusText": "FORBIDDEN", "message": "..."}` |
 | `NotFoundException` | 404 | `{"status": 404, "statusText": "NOT_FOUND", "message": "..."}` |
-| `DuplicateException` / `InsertException` / `UpdateException` | 400 | `{"status": 400, "statusText": "BAD_REQUEST", "message": "..."}` |
+| `DomainValidationException` / `DuplicateException` / `InsertException` / `UpdateException` | 400 | `{"status": 400, "statusText": "BAD_REQUEST", "message": "..."}` |
 
 ミドルウェアが直接返す 401/403 も同じ JSON 形式。
 

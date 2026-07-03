@@ -31,7 +31,8 @@ class JwtAuthMiddleware
         try {
             $jwtAuthUser = $this->jwtService->parse($token);
         } catch (\Throwable $e) {
-            Log::error('JwtAuthMiddleware[' . $request->path() . '] ' . $e->getMessage());
+            Log::error('JwtAuthMiddleware['.$request->path().'] '.$e->getMessage());
+
             return $this->unauthorized($e->getMessage());
         }
 
@@ -44,11 +45,11 @@ class JwtAuthMiddleware
             $user = SandboxUser::where('user_id', $jwtAuthUser->sub)->first();
             if ($user !== null) {
                 $authUser = new AuthUser(
-                    sub:           $jwtAuthUser->sub,
-                    email:         $jwtAuthUser->email,
+                    sub: $jwtAuthUser->sub,
+                    email: $jwtAuthUser->email,
                     emailVerified: $jwtAuthUser->emailVerified,
-                    admin:         $user->admin,
-                    approved:      $user->isApproved(),
+                    admin: $user->admin,
+                    approved: $user->isApproved(),
                 );
                 $this->sessionService->save($authUser);
             }
@@ -58,7 +59,7 @@ class JwtAuthMiddleware
             return $this->forbidden('User not found');
         }
 
-        if (!$authUser->isApproved()) {
+        if (! $authUser->isApproved()) {
             return $this->forbidden('Not approved');
         }
 
@@ -80,18 +81,18 @@ class JwtAuthMiddleware
     private function unauthorized(string $message): Response
     {
         return response()->json([
-            'status'     => 401,
+            'status' => 401,
             'statusText' => 'UNAUTHORIZED',
-            'message'    => $message,
+            'message' => $message,
         ], 401);
     }
 
     private function forbidden(string $message): Response
     {
         return response()->json([
-            'status'     => 403,
+            'status' => 403,
             'statusText' => 'FORBIDDEN',
-            'message'    => $message,
+            'message' => $message,
         ], 403);
     }
 }

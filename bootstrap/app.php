@@ -1,12 +1,14 @@
 <?php
 
 use App\Exceptions\AuthenticationException;
+use App\Exceptions\DomainValidationException;
 use App\Exceptions\DuplicateException;
 use App\Exceptions\ForbiddenException;
 use App\Exceptions\InsertException;
 use App\Exceptions\NotFoundException;
 use App\Exceptions\UpdateException;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\JsonUnescapedUnicodeMiddleware;
 use App\Http\Middleware\JwtAuthMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -21,8 +23,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'jwt.auth'   => JwtAuthMiddleware::class,
+            'jwt.auth' => JwtAuthMiddleware::class,
             'role.admin' => AdminMiddleware::class,
+        ]);
+
+        $middleware->api(append: [
+            JsonUnescapedUnicodeMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -32,33 +38,33 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (AuthenticationException $e, Request $request) {
             return response()->json([
-                'status'     => 401,
+                'status' => 401,
                 'statusText' => 'UNAUTHORIZED',
-                'message'    => $e->getMessage(),
+                'message' => $e->getMessage(),
             ], 401);
         });
 
         $exceptions->render(function (ForbiddenException $e, Request $request) {
             return response()->json([
-                'status'     => 403,
+                'status' => 403,
                 'statusText' => 'FORBIDDEN',
-                'message'    => $e->getMessage(),
+                'message' => $e->getMessage(),
             ], 403);
         });
 
         $exceptions->render(function (NotFoundException $e, Request $request) {
             return response()->json([
-                'status'     => 404,
+                'status' => 404,
                 'statusText' => 'NOT_FOUND',
-                'message'    => $e->getMessage(),
+                'message' => $e->getMessage(),
             ], 404);
         });
 
-        $exceptions->render(function (DuplicateException|InsertException|UpdateException $e, Request $request) {
+        $exceptions->render(function (DomainValidationException|DuplicateException|InsertException|UpdateException $e, Request $request) {
             return response()->json([
-                'status'     => 400,
+                'status' => 400,
                 'statusText' => 'BAD_REQUEST',
-                'message'    => $e->getMessage(),
+                'message' => $e->getMessage(),
             ], 400);
         });
     })->create();

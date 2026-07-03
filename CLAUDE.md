@@ -106,6 +106,11 @@ Http/Middleware  ──→ Services ──→ Models (Eloquent)
 
 `App\`
 
+### ディレクトリ分割の基準
+
+- `app/Models/` はサブディレクトリを作らず flat（`Fx*` などの接頭辞で区別）。1 テーブル = 1 クラスで数が増えないため
+- `app/UseCases/` と `app/Http/Controllers/` は「1 ドメインにつきクラスが 1 つなら直下、複数あるならドメイン別サブディレクトリ（例: `Fx/`）」を基準に分割する
+
 ---
 
 ## 実装規約

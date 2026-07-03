@@ -28,14 +28,14 @@ class UserController extends Controller
         if ($userDto === null) {
             return response()->json([
                 'returnCode' => 1,
-                'message'    => '利用承認待ちです',
-                'user'       => null,
+                'message' => '利用承認待ちです',
+                'user' => null,
             ]);
         }
 
         return response()->json([
             'returnCode' => 0,
-            'user'       => $userDto,
+            'user' => $userDto,
         ]);
     }
 
@@ -48,14 +48,14 @@ class UserController extends Controller
         $authUser = $request->attributes->get('authUser');
 
         $userDto = $this->registerUserUseCase->execute(
-            userId:   $authUser->sub,
-            email:    $authUser->email,
+            userId: $authUser->sub,
+            email: $authUser->email,
             nickName: $request->input('nickName'),
         );
 
         return response()->json([
             'returnCode' => 0,
-            'user'       => $userDto,
+            'user' => $userDto,
         ]);
     }
 
@@ -73,14 +73,14 @@ class UserController extends Controller
         }
 
         $userDto = $this->updateUserUseCase->execute(
-            userId:    $authUser->sub,
-            nickName:  $request->input('nickName'),
+            userId: $authUser->sub,
+            nickName: $request->input('nickName'),
             updatedBy: $authUser->sub,
         );
 
         return response()->json([
             'returnCode' => 0,
-            'user'       => $userDto,
+            'user' => $userDto,
         ]);
     }
 }
