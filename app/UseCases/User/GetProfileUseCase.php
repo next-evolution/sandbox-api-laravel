@@ -17,7 +17,7 @@ class GetProfileUseCase
             throw new NotFoundException('ユーザが存在しません');
         }
 
-        if (!$user->isApproved()) {
+        if (! $user->isApproved()) {
             return null;
         }
 

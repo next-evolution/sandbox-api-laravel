@@ -14,11 +14,11 @@ class AdminMiddleware
     {
         $authUser = $request->attributes->get('authUser');
 
-        if ($authUser === null || !$authUser->isAdmin()) {
+        if ($authUser === null || ! $authUser->isAdmin()) {
             return response()->json([
-                'status'     => 403,
+                'status' => 403,
                 'statusText' => 'FORBIDDEN',
-                'message'    => 'Admin required',
+                'message' => 'Admin required',
             ], 403);
         }
 

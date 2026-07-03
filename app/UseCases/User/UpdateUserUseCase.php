@@ -22,7 +22,7 @@ class UpdateUserUseCase
 
         DB::transaction(function () use ($user, $nickName, $updatedBy): void {
             $affected = SandboxUser::where('id', $user->id)->update([
-                'nick_name'  => $nickName,
+                'nick_name' => $nickName,
                 'updated_at' => Carbon::now(),
                 'updated_by' => $updatedBy,
             ]);

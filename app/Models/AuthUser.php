@@ -27,22 +27,22 @@ class AuthUser
     public function toArray(): array
     {
         return [
-            'sub'           => $this->sub,
-            'email'         => $this->email,
+            'sub' => $this->sub,
+            'email' => $this->email,
             'emailVerified' => $this->emailVerified,
-            'admin'         => $this->admin,
-            'approved'      => $this->approved,
+            'admin' => $this->admin,
+            'approved' => $this->approved,
         ];
     }
 
     public static function fromArray(array $data): self
     {
         return new self(
-            sub:           $data['sub'],
-            email:         $data['email'],
+            sub: $data['sub'],
+            email: $data['email'],
             emailVerified: (bool) $data['emailVerified'],
-            admin:         (bool) $data['admin'],
-            approved:      (bool) $data['approved'],
+            admin: (bool) $data['admin'],
+            approved: (bool) $data['approved'],
         );
     }
 }
