@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Exceptions\DomainValidationException;
 use Illuminate\Database\Eloquent\Model;
 
 class FxSymbol extends Model
@@ -23,6 +24,17 @@ class FxSymbol extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    private const SYMBOL_TYPES = ['Trade', 'Analyze'];
+
+    public static function assertValidSymbolType(string $symbolType): string
+    {
+        if (! in_array($symbolType, self::SYMBOL_TYPES, true)) {
+            throw new DomainValidationException("不正な symbolType です: {$symbolType}");
+        }
+
+        return $symbolType;
+    }
 
     public function toDtoArray(): array
     {

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Fx\BarDataController;
 use App\Http\Controllers\Fx\CountryController;
 use App\Http\Controllers\Fx\EconomicIndicatorController;
 use App\Http\Controllers\Fx\MasterListController;
@@ -54,6 +55,13 @@ Route::prefix('v1')->group(function (): void {
             Route::post('', [EconomicIndicatorController::class, 'add']);
             Route::get('/{countryCode}/{code}', [EconomicIndicatorController::class, 'get']);
             Route::put('/{countryCode}/{code}', [EconomicIndicatorController::class, 'update']);
+        });
+
+        // FX - Bar Data
+        Route::prefix('fx/bar-data')->group(function (): void {
+            Route::post('', [BarDataController::class, 'search']);
+            Route::post('/import-csv/{symbol}/{barType}/{skipLatest}', [BarDataController::class, 'importCsv']);
+            Route::get('/{symbolType}/{barType}', [BarDataController::class, 'status']);
         });
     });
 
