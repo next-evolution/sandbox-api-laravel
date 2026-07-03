@@ -49,6 +49,13 @@ DDD（ドメイン駆動設計）に基づくレイヤー構成。SpringBoot の
 
 ---
 
+## API仕様の整合性
+
+`docs/api-docs.yaml`（SpringBoot版が springdoc-openapi で生成した正の仕様）に対し、実装が契約通りに動いているかを `hotmeteor/spectator` で自動テスト検証する方針（未導入）。
+手書きの OpenAPI アノテーション（`l5-swagger` 等）による独自ドキュメント生成は採用しない。
+
+---
+
 ## Getting Started
 
 ### 1. ローカルインフラ起動
