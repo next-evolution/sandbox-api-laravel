@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Fx\BarDataController;
 use App\Http\Controllers\Fx\CountryController;
 use App\Http\Controllers\Fx\EconomicIndicatorController;
+use App\Http\Controllers\Fx\EconomicIndicatorDataController;
 use App\Http\Controllers\Fx\MasterListController;
 use App\Http\Controllers\Fx\SummerTimeController;
 use App\Http\Controllers\Fx\SymbolController;
@@ -57,6 +58,15 @@ Route::prefix('v1')->group(function (): void {
             Route::post('', [EconomicIndicatorController::class, 'add']);
             Route::get('/{countryCode}/{code}', [EconomicIndicatorController::class, 'get']);
             Route::put('/{countryCode}/{code}', [EconomicIndicatorController::class, 'update']);
+        });
+
+        // FX - Economic Indicator Data
+        Route::prefix('fx/economic-indicator-data')->group(function (): void {
+            Route::post('/search', [EconomicIndicatorDataController::class, 'search']);
+            Route::post('/import-text', [EconomicIndicatorDataController::class, 'importText']);
+            Route::post('', [EconomicIndicatorDataController::class, 'add']);
+            Route::get('/{countryCode}/{code}/{publication}', [EconomicIndicatorDataController::class, 'get']);
+            Route::put('/{countryCode}/{code}/{publication}', [EconomicIndicatorDataController::class, 'update']);
         });
 
         // FX - Bar Data
