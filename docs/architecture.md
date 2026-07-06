@@ -19,6 +19,7 @@ PHP 8.3 / Laravel 11 シングルアプリ構成。Laravel の流儀（Active Re
 | `app/Models/Fx*.php` | FX 系 Eloquent モデル（`FxSymbol`, `FxCountry`, `FxSummerTime`, `FxEconomicIndicator`）。各テーブルに 1 対 1 対応 |
 | `app/Services/JwtService.php` | Cognito RS256 JWKS 検証 |
 | `app/Services/SessionService.php` | Redis セッション管理（`AuthUser` の保存・取得・削除） |
+| `app/Services/MasterCacheService.php` | Redis マスターデータキャッシュ管理（`master:*` キーの取得・保存・ステータス集計・パターン削除） |
 | `app/UseCases/` | ビジネスロジック。各クラスは `execute()` メソッドを持つ。ドメイン別サブディレクトリ（`Auth/`, `User/`, `Fx/Symbol/` など）で整理 |
 | `app/Http/Controllers/` | REST コントローラー。リクエスト取得・バリデーション・UseCase 呼び出し・レスポンス生成のみ。ドメイン別サブディレクトリ（`Fx/` など）で整理 |
 | `app/Http/Middleware/` | `JwtAuthMiddleware`、`AdminMiddleware`、`JsonUnescapedUnicodeMiddleware`（全APIレスポンスに `JSON_UNESCAPED_UNICODE` を適用、`api` グループに一括登録） |
@@ -91,7 +92,10 @@ Http/Middleware  ──→ Services ──→ Models (Eloquent)
   - シリアライズ: `AuthUser::toArray()` で JSON 保存
 - **JWKS キャッシュ**: `JwtService` が Cognito の公開鍵を Redis にキャッシュ（TTL 1 時間）
   - キー: `jwks`
-- **マスターデータキャッシュ**: キャッシュアサイドパターンで実装（Phase 4 で実装予定）
+- **マスターデータキャッシュ**: `MasterCacheService` によるキャッシュアサイドパターン
+  - キー: `master:{name}`（例: `master:country`, `master:symbol_Trade`, `master:economic_indicator_JP`）、TTL なし（`PUT /v1/admin/master-refresh` による明示的リフレッシュまで保持）
+  - `GET /v1/admin/master-refresh` — 各 `master:*` キーの件数を `key=count` 形式（改行区切り）で返す
+  - `PUT /v1/admin/master-refresh` — 国・シンボル（Trade/Analyze）・国別経済指標のキャッシュを再構築し、`price*` パターンのキーを削除した上でステータスを返す
 
 ---
 

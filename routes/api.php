@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Admin\MasterRefreshController;
+use App\Http\Controllers\Admin\UsersController as AdminUsersController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Fx\BarDataController;
 use App\Http\Controllers\Fx\CountryController;
@@ -67,7 +69,13 @@ Route::prefix('v1')->group(function (): void {
 
     // 管理者のみ
     Route::middleware(['jwt.auth', 'role.admin'])->prefix('admin')->group(function (): void {
-        // Phase 3 で実装
+        Route::post('/users', [AdminUsersController::class, 'search']);
+        Route::put('/users/approved/{userId}', [AdminUsersController::class, 'approved']);
+        Route::put('/users/block/{userId}', [AdminUsersController::class, 'block']);
+        Route::put('/users/admin/{userId}', [AdminUsersController::class, 'grantAdmin']);
+
+        Route::get('/master-refresh', [MasterRefreshController::class, 'status']);
+        Route::put('/master-refresh', [MasterRefreshController::class, 'refresh']);
     });
 
     // 認証不要 (public)
