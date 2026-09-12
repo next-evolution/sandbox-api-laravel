@@ -37,6 +37,13 @@ PHP 8.3 / Laravel 11 で構築された RestAPI。
 
 ---
 
+## 共通仕様（横断・FE/BE共通の大枠仕様）
+
+@../claude-code/architecture/auth.md
+@../claude-code/architecture/api-design.md
+
+---
+
 ## 外部ライブラリの最新情報
 
 知識カットオフ（2025年8月）以降にリリースされたライブラリ・フレームワーク（Laravel 12.x など）に
