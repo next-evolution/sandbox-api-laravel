@@ -175,7 +175,9 @@
 
 ---
 
-## FX - ZigZag
+## FX - ZigZag（未実装）
+
+sandbox-api-springboot には存在するが、本プロジェクトには未実装（将来的に追加実装予定）。詳細は [docs/issue.md](issue.md) 参照。
 
 | メソッド | パス | 説明 |
 |---|---|---|
@@ -186,7 +188,9 @@
 
 ---
 
-## FX - Trade Simulation
+## FX - Trade Simulation（未実装）
+
+sandbox-api-springboot には存在するが、本プロジェクトには未実装（将来的に追加実装予定）。詳細は [docs/issue.md](issue.md) 参照。
 
 | メソッド | パス | 説明 |
 |---|---|---|
