@@ -113,3 +113,26 @@ Cognito の JWT は `aud` が文字列単体の場合と配列の場合がある
 
 SpringBoot と同様に `fx_bar_m15`, `fx_bar_h1`, `fx_bar_h4`, `fx_bar_d1` の 4 テーブルに分けるか、  
 単一テーブル + `bar_type` カラムで管理するかは Phase 5 実装時に決定。
+
+---
+
+# SpringBoot版に存在するAPIの未実装
+
+**ステータス: 未実装（将来的に追加実装予定）**
+
+## 事象
+
+sandbox-api-springboot（正とするAPI一覧）と比較して、以下のエンドポイントが本プロジェクトに未実装。
+対応する Controller（`TradeSimulationController` / `ZigZagController`）も存在しない。
+
+| メソッド | パス |
+|---|---|
+| POST | `/v1/fx/trade/simulation` |
+| POST | `/v1/fx/zigzag` |
+| POST | `/v1/fx/zigzag/status` |
+| POST | `/v1/fx/zigzag/generate` |
+| POST | `/v1/fx/zigzag/bar-data` |
+
+## 理由
+
+将来的に追加実装予定。
