@@ -17,13 +17,21 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
 
-    // 認証が必要なルート
-    Route::middleware('jwt.auth')->group(function (): void {
-        Route::post('/auth/login', [AuthController::class, 'login']);
-        Route::post('/auth/logout-api', [AuthController::class, 'logout']);
+    // JWTは必須だが承認（approved）は不要なルート
+    // ログインAPI・ユーザー登録・プロフィール取得（未承認/未登録でもJWTが有効なら到達させ、
+    // 到達後はコントローラ/UseCase側で個別に承認待ち等を判定する）
+    Route::middleware('jwt.auth:any')->group(function (): void {
+        Route::post('/auth/login/web', [AuthController::class, 'loginWeb']);
+        Route::post('/auth/login/app', [AuthController::class, 'loginApp']);
 
         Route::get('/user', [UserController::class, 'profile']);
         Route::post('/user', [UserController::class, 'registration']);
+    });
+
+    // 認証が必要なルート（承認済みユーザーのみ）
+    Route::middleware('jwt.auth')->group(function (): void {
+        Route::post('/auth/logout-api', [AuthController::class, 'logout']);
+
         Route::put('/user/{userId}', [UserController::class, 'update']);
 
         // FX - Symbol

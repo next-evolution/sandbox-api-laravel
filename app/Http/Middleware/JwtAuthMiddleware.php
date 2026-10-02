@@ -6,6 +6,8 @@ namespace App\Http\Middleware;
 
 use App\Models\AuthUser;
 use App\Models\SandboxUser;
+use App\Services\BearerTokenResolver;
+use App\Services\JwtCookieService;
 use App\Services\JwtService;
 use App\Services\SessionService;
 use Closure;
@@ -20,7 +22,12 @@ class JwtAuthMiddleware
         private readonly SessionService $sessionService,
     ) {}
 
-    public function handle(Request $request, Closure $next): Response
+    /**
+     * @param  string  $mode  'approved'（デフォルト）= 承認済みユーザーのみ通過。
+     *                        'any' = JWTが有効であれば承認前・未登録でも通過させる
+     *                        （ログインAPI、POST/GET /v1/user 専用。コントローラ側で個別処理する）
+     */
+    public function handle(Request $request, Closure $next, string $mode = 'approved'): Response
     {
         $token = $this->resolveToken($request);
 
@@ -36,30 +43,9 @@ class JwtAuthMiddleware
             return $this->unauthorized($e->getMessage());
         }
 
-        $authUser = $this->sessionService->findBySub($jwtAuthUser->sub);
+        $authUser = $this->resolveAuthUser($jwtAuthUser);
 
-        if ($authUser !== null) {
-            $this->sessionService->update($authUser);
-        } else {
-            // silent login: DB から AuthUser を復元
-            $user = SandboxUser::where('user_id', $jwtAuthUser->sub)->first();
-            if ($user !== null) {
-                $authUser = new AuthUser(
-                    sub: $jwtAuthUser->sub,
-                    email: $jwtAuthUser->email,
-                    emailVerified: $jwtAuthUser->emailVerified,
-                    admin: $user->admin,
-                    approved: $user->isApproved(),
-                );
-                $this->sessionService->save($authUser);
-            }
-        }
-
-        if ($authUser === null) {
-            return $this->forbidden('User not found');
-        }
-
-        if (! $authUser->isApproved()) {
+        if ($mode === 'approved' && ! $authUser->isApproved()) {
             return $this->forbidden('Not approved');
         }
 
@@ -68,14 +54,49 @@ class JwtAuthMiddleware
         return $next($request);
     }
 
-    private function resolveToken(Request $request): ?string
+    private function resolveAuthUser(AuthUser $jwtAuthUser): AuthUser
     {
-        $header = $request->header('Authorization', '');
-        if (str_starts_with($header, 'Bearer ')) {
-            return substr($header, 7);
+        $authUser = $this->sessionService->findBySub($jwtAuthUser->sub);
+
+        if ($authUser !== null) {
+            $this->sessionService->update($authUser);
+
+            return $authUser;
         }
 
-        return null;
+        // silent login: DB から AuthUser を復元
+        $user = SandboxUser::where('user_id', $jwtAuthUser->sub)->first();
+        if ($user !== null) {
+            $authUser = new AuthUser(
+                sub: $jwtAuthUser->sub,
+                email: $jwtAuthUser->email,
+                emailVerified: $jwtAuthUser->emailVerified,
+                admin: $user->admin,
+                approved: $user->isApproved(),
+            );
+            $this->sessionService->save($authUser);
+
+            return $authUser;
+        }
+
+        // sandbox_user 未登録（初回ログイン・登録前）は JWT 由来の authUser にフォールバックする
+        return $jwtAuthUser;
+    }
+
+    /**
+     * トークン文字列を取り出す。Authorization ヘッダー（Bearer、Flutter向け）を優先し、
+     * 無ければ Cookie（sandbox_jwt、React向け）を見る。
+     */
+    private function resolveToken(Request $request): ?string
+    {
+        $bearerToken = BearerTokenResolver::resolve($request);
+        if ($bearerToken !== null) {
+            return $bearerToken;
+        }
+
+        $cookieToken = $request->cookie(JwtCookieService::COOKIE_NAME);
+
+        return is_string($cookieToken) && $cookieToken !== '' ? $cookieToken : null;
     }
 
     private function unauthorized(string $message): Response

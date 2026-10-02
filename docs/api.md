@@ -1,7 +1,7 @@
 # API エンドポイント一覧
 
 ベースパス: `/api`（Laravel の api ルートプレフィックス）+ `/v1/...`  
-例: `POST /api/v1/auth/login`
+例: `POST /api/v1/auth/login/web`
 
 ---
 
@@ -49,9 +49,16 @@
 
 ### 認証
 
-- 全エンドポイントで JWT（`Authorization: Bearer <token>`）が必要
+- 全エンドポイントで JWT が必要。トークン受け渡し方式はクライアント種別で異なる（詳細は `documents/architecture/auth.md`「トークン受け渡し方式（クライアント種別）」参照）
+  - sandbox-app-flutter: `Authorization: Bearer <token>` ヘッダー
+  - sandbox-spa-react（Web）: `sandbox_jwt` という名前の HttpOnly Cookie（ログイン成功時に発行）。JWT の値は Bearer の場合と同一
+  - `resolveToken()` は `Authorization` ヘッダーを優先し、無ければ Cookie を見る
 - `/v1/fx/master-list/**` のみ認証不要（ミドルウェアなし）
+- ログインAPI（`/v1/auth/login/web`・`/v1/auth/login/app`）と `POST`/`GET /v1/user` の3エンドポイントは JWT は必須だが「承認済み（approved）」は不要（`jwt.auth:any` ミドルウェア）。未承認・未登録でも到達させ、コントローラ/UseCase側で個別に判定する
+- それ以外のエンドポイントは `jwt.auth`（デフォルト）ミドルウェアで承認済みユーザーのみに制限
 - 管理者専用エンドポイントは `role.admin` ミドルウェアで制御（非管理者は 403）
+- CORS: React（別オリジン配信）からの Cookie 送受信のため `CORS_ORIGIN1`/`CORS_ORIGIN2`（`config/cors.php`）を許可オリジンとして明示し、`supports_credentials: true` を設定
+- CSRF: Cookie方式（Web）の状態変更リクエスト（GET/HEAD/OPTIONS以外）はダブルサブミットCookie（`XSRF-TOKEN` Cookie ⇔ `X-XSRF-TOKEN` ヘッダー）で検証する（`CsrfCookieMiddleware`）。Bearer方式（Flutter）は検証をスキップする。ログインAPI自体は常に Bearer リクエストとして呼ばれるため、この検証の対象外
 
 ---
 
@@ -59,8 +66,9 @@
 
 | メソッド | パス | 説明 |
 |---|---|---|
-| POST | `/v1/auth/login` | ログイン。JWT の email と Base64 デコードしたリクエストの email を照合し、AuthUser を Redis に保存 |
-| POST | `/v1/auth/logout-api` | ログアウト。Redis セッションを削除 |
+| POST | `/v1/auth/login/web` | sandbox-spa-react（Web）向けログイン。JWT の email と Base64 デコードしたリクエストの email を照合し、AuthUser を Redis に保存。成功時は JWT を `sandbox_jwt` Cookie として `Set-Cookie`（レスポンスボディにトークンは含めない） |
+| POST | `/v1/auth/login/app` | sandbox-app-flutter向けログイン。処理内容は `/login/web` と同じ（Cookie発行は行わない） |
+| POST | `/v1/auth/logout-api` | ログアウト。Redis セッションを削除。`sandbox_jwt` Cookie も失効させる（Flutter は Cookie 未使用のため無害） |
 
 ---
 
