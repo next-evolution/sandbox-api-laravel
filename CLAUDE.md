@@ -184,10 +184,13 @@ if (!$authUser->isAdmin()) {
 
 詳細は [docs/architecture.md](docs/architecture.md) 参照。
 
-1. `JwtAuthMiddleware` — RS256 JWT 検証 → Redis から `AuthUser`（admin・approved フラグ含む）を取得 → `$request->attributes` にセット
-2. `jwt.auth` ミドルウェアが `approved=false` のユーザーを 403 でブロック
+1. `JwtAuthMiddleware` — RS256 JWT 検証 → Redis から `AuthUser`（admin・approved フラグ含む）を取得 → `$request->attributes` にセット（認可判定はここでは行わない）
+2. ミドルウェアパラメータで認可を制御（`middleware('jwt.auth:any')` / `middleware('jwt.auth')`）
+   - `jwt.auth:any` — 承認不要。ログインAPI（`/v1/auth/login/web`・`/app`）と `POST`/`GET /v1/user` の3エンドポイントのみ
+   - `jwt.auth`（デフォルト） — `approved=false` のユーザーを 403 でブロック
    - `/v1/fx/master-list/**` — 認証不要（ミドルウェアなし）
    - 管理者専用エンドポイント — `role.admin` ミドルウェアで制御
+3. Cookie方式（Web）はCSRF検証あり（`CsrfCookieMiddleware`、ダブルサブミットCookie）。Bearer方式（Flutter）はスキップ
 
 ### 環境変数
 

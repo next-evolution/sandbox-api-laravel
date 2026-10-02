@@ -8,6 +8,7 @@ use App\Exceptions\InsertException;
 use App\Exceptions\NotFoundException;
 use App\Exceptions\UpdateException;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\CsrfCookieMiddleware;
 use App\Http\Middleware\JsonUnescapedUnicodeMiddleware;
 use App\Http\Middleware\JwtAuthMiddleware;
 use Illuminate\Foundation\Application;
@@ -29,6 +30,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->api(append: [
             JsonUnescapedUnicodeMiddleware::class,
+            // Cookie方式（Web）向けCSRF対策。Bearer方式（Flutter）はミドルウェア内部でスキップする
+            CsrfCookieMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

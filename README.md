@@ -66,16 +66,6 @@ DDD（ドメイン駆動設計）に基づくレイヤー構成。SpringBoot の
 
 MySQL・Redis は `sandbox-tools` リポジトリで管理。
 
-```bash
-# sandbox-tools/docker/ で実行
-cd ../sandbox-tools/docker
-cp .env.compose.example .env.compose  # 初回のみ
-docker compose --env-file .env.compose up -d
-```
-
-> `initdb.d/` スクリプトが初回起動時に DB 作成・アプリユーザー作成・管理者ユーザー INSERT を自動実行します。  
-> 再初期化する場合は `docker compose down -v` でボリュームを削除してから再起動してください。
-
 ### 2. アプリケーション環境変数
 
 ```bash
